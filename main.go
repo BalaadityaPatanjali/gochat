@@ -21,6 +21,7 @@ func main() {
 	mux.HandleFunc("/ws", handleWS)
 	mux.HandleFunc("/history", historyHandler)
 	mux.HandleFunc("/users", usersHandler)
+	mux.HandleFunc("/deleteHistory", deleteHistoryHandler)
 
 	// Serve static frontend
 	mux.Handle("/", http.FileServer(http.Dir("./static")))

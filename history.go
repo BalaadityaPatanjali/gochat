@@ -38,3 +38,37 @@ func historyHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(history)
 }
+
+func deleteHistoryHandler(w http.ResponseWriter, r *http.Request) {
+    // Only allow DELETE method
+    if r.Method != http.MethodDelete {
+        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+        return
+    }
+
+    // Get usernames from query
+    user1 := r.URL.Query().Get("user1")
+    user2 := r.URL.Query().Get("user2")
+
+    if user1 == "" || user2 == "" {
+        http.Error(w, "Missing users", http.StatusBadRequest)
+        return
+    }
+
+    // Delete messages between these two users
+    _, err := db.Exec(`
+        DELETE FROM messages
+        WHERE (sender = ? AND receiver = ?)
+           OR (sender = ? AND receiver = ?)`,
+        user1, user2, user2, user1,
+    )
+    if err != nil {
+        http.Error(w, "Error deleting messages", http.StatusInternalServerError)
+        return
+    }
+
+    json.NewEncoder(w).Encode(map[string]string{
+        "status": "success",
+        "message": "Chat history deleted",
+    })
+}

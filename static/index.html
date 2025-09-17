@@ -3,682 +3,659 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat App</title>
+    <title>Modern Chat App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-in-out',
+                        'slide-in': 'slideIn 0.3s ease-out',
+                        'bounce-in': 'bounceIn 0.5s ease-out'
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f0f2f5;
-            height: 100vh;
-            overflow: hidden;
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
-
-        /* Login Screen */
-        .login-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        @keyframes bounceIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
-
-        .login-box {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
+        .message-bubble {
+            animation: bounceIn 0.3s ease-out;
         }
-
-        .login-box h2 {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: #333;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #555;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 0.75rem;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.3s;
-            margin-bottom: 0.5rem;
-        }
-
-        .btn:hover {
-            background: #5a6fd8;
-        }
-
-        .error-message {
-            color: #e74c3c;
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 0.9rem;
-        }
-
-        /* Main Chat Interface */
-        .chat-container {
-            display: none;
-            height: 100vh;
-            flex-direction: column;
-        }
-
-        .header {
-            background: #075e54;
-            color: white;
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .header h1 {
-            font-size: 1.2rem;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .username-display {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        .logout-btn {
-            padding: 0.5rem 1rem;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .main-content {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 300px;
-            background: white;
-            border-right: 1px solid #e1e1e1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-header {
-            padding: 1rem;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e1e1e1;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .users-list {
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .user-item {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid #f0f0f0;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            display: flex;
-            align-items: center;
-        }
-
         .user-item:hover {
-            background: #f5f5f5;
+            transform: translateX(4px);
+            transition: transform 0.2s ease;
         }
-
-        .user-item.active {
-            background: #e3f2fd;
-            border-right: 3px solid #075e54;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #075e54;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 0.75rem;
-            font-weight: bold;
-        }
-
-        .user-info {
-            flex: 1;
-        }
-
-        .user-name {
-            font-weight: 500;
-            color: #333;
-        }
-
-        /* Chat Window */
-        .chat-window {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #e5ddd5;
-        }
-
-        .chat-header {
-            padding: 1rem;
-            background: white;
-            border-bottom: 1px solid #e1e1e1;
-            display: flex;
-            align-items: center;
-        }
-
-        .chat-header-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #075e54;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 0.75rem;
-            font-weight: bold;
-        }
-
-        .selected-user-name {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .messages-container {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .message {
-            max-width: 70%;
-            padding: 0.5rem 0.75rem;
-            border-radius: 8px;
-            word-wrap: break-word;
-            position: relative;
-        }
-
-        .message.sent {
-            background: #dcf8c6;
-            align-self: flex-end;
-            margin-left: auto;
-        }
-
-        .message.received {
-            background: white;
-            align-self: flex-start;
-        }
-
-        .message-time {
-            font-size: 0.7rem;
-            color: #666;
-            margin-top: 0.25rem;
-        }
-
-        .message-input-container {
-            padding: 1rem;
-            background: white;
-            border-top: 1px solid #e1e1e1;
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .message-input {
-            flex: 1;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            outline: none;
-            font-size: 1rem;
-        }
-
-        .message-input:focus {
-            border-color: #075e54;
-        }
-
-        .send-btn {
-            padding: 0.75rem 1.5rem;
-            background: #075e54;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background 0.2s;
-        }
-
         .send-btn:hover {
-            background: #064e45;
+            transform: scale(1.05);
+            transition: transform 0.1s ease;
         }
-
-        .no-chat-selected {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #666;
-            font-size: 1.1rem;
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
         }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                position: absolute;
-                z-index: 10;
-                height: 100%;
-            }
-            
-            .chat-window {
-                width: 100%;
-            }
-            
-            .sidebar.hidden {
-                display: none;
-            }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
         }
     </style>
 </head>
-<body>
-    <!-- Login Screen -->
-    <div id="loginContainer" class="login-container">
-        <div class="login-box">
-            <h2>Chat App</h2>
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" placeholder="Enter your username">
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    
+    <!-- Authentication Screen -->
+    <div id="authScreen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md animate-fade-in">
+            <div class="text-center mb-8">
+                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                </div>
+                <h1 id="authTitle" class="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
+                <p id="authSubtitle" class="text-gray-600">Sign in to your account</p>
             </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" placeholder="Enter your password">
+
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input 
+                        id="username" 
+                        type="text" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        placeholder="Enter your username"
+                    />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input 
+                        id="password" 
+                        type="password" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        placeholder="Enter your password"
+                    />
+                </div>
+
+                <div id="authError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-red-600 text-sm"></div>
+
+                <button 
+                    id="authBtn"
+                    class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+                >
+                    <span id="authBtnText">Sign In</span>
+                    <div id="authLoader" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></div>
+                </button>
             </div>
-            <button class="btn" onclick="login()">Login</button>
-            <button class="btn" onclick="register()" style="background: #95a5a6;">Register</button>
-            <div id="errorMessage" class="error-message"></div>
+
+            <div class="mt-6 text-center">
+                <button 
+                    id="toggleAuth"
+                    class="text-blue-500 hover:text-blue-600 font-medium transition-colors duration-200"
+                >
+                    Don't have an account? Sign up
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- Main Chat Interface -->
-    <div id="chatContainer" class="chat-container">
-        <div class="header">
-            <h1>Chat App</h1>
-            <div class="header-right">
-                <div class="username-display">
-                    Logged in as: <span id="loggedInUser"></span>
+    <div id="chatScreen" class="hidden h-screen bg-gray-100 flex">
+        
+        <!-- Sidebar -->
+        <div id="sidebar" class="w-full md:w-80 bg-white border-r border-gray-200 flex flex-col shadow-lg">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white bg-opacity-20 rounded-full w-10 h-10 flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 id="currentUsername" class="font-semibold"></h2>
+                        <p class="text-blue-100 text-sm flex items-center">
+                            <span class="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                            Online
+                        </p>
+                    </div>
                 </div>
-                <button class="logout-btn" onclick="logout()">Logout</button>
+                <button 
+                    id="logoutBtn"
+                    class="bg-white bg-opacity-20 hover:bg-opacity-30 p-2 rounded-lg transition-all duration-200"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Users List Header -->
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                    <span class="font-medium">Users (<span id="userCount">0</span>)</span>
+                </div>
+            </div>
+
+            <!-- Users List -->
+            <div id="usersList" class="flex-1 overflow-y-auto scrollbar-hide">
+                <div id="noUsersMsg" class="p-4 text-center text-gray-500">
+                    <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                    <p>No other users online</p>
+                </div>
             </div>
         </div>
-        
-        <div class="main-content">
-            <!-- Sidebar -->
-            <div class="sidebar" id="sidebar">
-                <div class="sidebar-header">
-                    Users
-                </div>
-                <div class="users-list" id="usersList">
-                    <!-- Users will be populated here -->
+
+        <!-- Chat Area -->
+        <div id="chatArea" class="flex-1 flex flex-col">
+            
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="flex-1 flex items-center justify-center bg-gray-50">
+                <div class="text-center text-gray-500">
+                    <button id="mobileUsersBtn" class="hidden md:hidden mb-4 p-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors shadow-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                    </button>
+                    <svg class="w-20 h-20 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                    <h3 class="text-xl font-medium text-gray-600 mb-2">Select a conversation</h3>
+                    <p class="text-gray-500">Choose a user from the sidebar to start chatting</p>
                 </div>
             </div>
 
             <!-- Chat Window -->
-            <div class="chat-window">
-                <div class="chat-header" id="chatHeader" style="display: none;">
-                    <div class="chat-header-avatar" id="chatHeaderAvatar"></div>
-                    <div class="selected-user-name" id="selectedUserName"></div>
-                </div>
+            <div id="chatWindow" class="hidden flex-1 flex flex-col">
                 
-                <div class="messages-container" id="messagesContainer">
-                    <div class="no-chat-selected">
-                        Select a user to start chatting
+                <!-- Chat Header -->
+                <div class="bg-white border-b border-gray-200 p-4 flex items-center justify-between shadow-sm">
+                    <div class="flex items-center space-x-3">
+                        <button id="backBtn" class="hidden p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full w-10 h-10 flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 id="selectedUserName" class="font-semibold text-gray-800"></h2>
+                            <p class="text-sm text-green-500 flex items-center">
+                                <span class="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                                Online
+                            </p>
+                        </div>
+                    </div>
+                    <button 
+                        id="deleteHistoryBtn"
+                        class="p-2 text-gray-500 hover:text-red-500 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Messages Container -->
+                <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 scrollbar-hide">
+                    <div id="noMessagesMsg" class="text-center text-gray-500 mt-8">
+                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                        <p>No messages yet. Start a conversation!</p>
                     </div>
                 </div>
-                
-                <div class="message-input-container" id="messageInputContainer" style="display: none;">
-                    <input type="text" class="message-input" id="messageInput" placeholder="Type a message...">
-                    <button class="send-btn" onclick="sendMessage()">Send</button>
+
+                <!-- Message Input -->
+                <div class="bg-white border-t border-gray-200 p-4 shadow-sm">
+                    <div class="flex items-center space-x-3">
+                        <input 
+                            id="messageInput"
+                            type="text" 
+                            placeholder="Type a message..."
+                            class="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        />
+                        <button 
+                            id="sendBtn"
+                            class="send-btn bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white p-3 rounded-full transition-all duration-200 shadow-lg"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let jwtToken = '';
-        let currentUser = '';
-        let selectedUser = '';
-        let websocket = null;
+    // Global variables
+    let currentUser = '';
+    let token = '';
+    let selectedUser = '';
+    let ws = null;
+    let users = [];
+    let messages = [];
+    let isRegistering = false;
+    let isMobile = window.innerWidth < 768;
 
-        // Login function
-        async function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('errorMessage');
+    // DOM elements
+    const authScreen = document.getElementById('authScreen');
+    const chatScreen = document.getElementById('chatScreen');
+    const authTitle = document.getElementById('authTitle');
+    const authSubtitle = document.getElementById('authSubtitle');
+    const authBtnText = document.getElementById('authBtnText');
+    const authBtn = document.getElementById('authBtn');
+    const authLoader = document.getElementById('authLoader');
+    const authError = document.getElementById('authError');
+    const toggleAuth = document.getElementById('toggleAuth');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const currentUsername = document.getElementById('currentUsername');
+    const usersList = document.getElementById('usersList');
+    const userCount = document.getElementById('userCount');
+    const noUsersMsg = document.getElementById('noUsersMsg');
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const chatWindow = document.getElementById('chatWindow');
+    const selectedUserName = document.getElementById('selectedUserName');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const noMessagesMsg = document.getElementById('noMessagesMsg');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const deleteHistoryBtn = document.getElementById('deleteHistoryBtn');
+    const sidebar = document.getElementById('sidebar');
+    const chatArea = document.getElementById('chatArea');
+    const backBtn = document.getElementById('backBtn');
+    const mobileUsersBtn = document.getElementById('mobileUsersBtn');
 
-            if (!username || !password) {
-                errorDiv.textContent = 'Please enter both username and password';
-                return;
-            }
+    // Utility functions
+    function showError(message) {
+        authError.textContent = message;
+        authError.classList.remove('hidden');
+    }
 
-            try {
-                const response = await fetch('/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, password })
-                });
+    function hideError() {
+        authError.classList.add('hidden');
+    }
 
-                if (response.ok) {
-                    const data = await response.json();
-                    jwtToken = data.token;
-                    currentUser = username;
-                    
-                    document.getElementById('loginContainer').style.display = 'none';
-                    document.getElementById('chatContainer').style.display = 'flex';
-                    document.getElementById('loggedInUser').textContent = currentUser;
-                    
-                    loadUsers();
-                } else {
-                    const error = await response.text();
-                    errorDiv.textContent = error || 'Login failed';
-                }
-            } catch (err) {
-                errorDiv.textContent = 'Network error occurred';
-            }
+    function setLoading(loading) {
+        if (loading) {
+            authBtnText.classList.add('hidden');
+            authLoader.classList.remove('hidden');
+            authBtn.disabled = true;
+        } else {
+            authBtnText.classList.remove('hidden');
+            authLoader.classList.add('hidden');
+            authBtn.disabled = false;
         }
+    }
 
-        // Register function
-        async function register() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('errorMessage');
+    function formatTime(timestamp) {
+        return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
 
-            if (!username || !password) {
-                errorDiv.textContent = 'Please enter both username and password';
-                return;
-            }
+    function scrollToBottom() {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
 
-            try {
-                const response = await fetch('/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, password })
-                });
-
-                if (response.ok) {
-                    errorDiv.textContent = '';
-                    alert('Registration successful! You can now login.');
-                } else {
-                    const error = await response.text();
-                    errorDiv.textContent = error || 'Registration failed';
-                }
-            } catch (err) {
-                errorDiv.textContent = 'Network error occurred';
-            }
-        }
-
-        // Load users
-        async function loadUsers() {
-            try {
-                const response = await fetch('/users', {
-                    headers: {
-                        'Authorization': `Bearer ${jwtToken}`
-                    }
-                });
-
-                if (response.ok) {
-                    const users = await response.json();
-                    const usersList = document.getElementById('usersList');
-                    usersList.innerHTML = '';
-
-                    users.forEach(user => {
-                        if (user !== currentUser) {
-                            const userItem = document.createElement('div');
-                            userItem.className = 'user-item';
-                            userItem.onclick = () => selectUser(user);
-                            userItem.innerHTML = `
-                                <div class="user-avatar">${user.charAt(0).toUpperCase()}</div>
-                                <div class="user-info">
-                                    <div class="user-name">${user}</div>
-                                </div>
-                            `;
-                            usersList.appendChild(userItem);
-                        }
-                    });
-                }
-            } catch (err) {
-                console.error('Failed to load users:', err);
-            }
-        }
-
-        // Select user
-        async function selectUser(username) {
-            // Remove active class from all users
-            document.querySelectorAll('.user-item').forEach(item => {
-                item.classList.remove('active');
-            });
-
-            // Add active class to selected user
-            event.target.closest('.user-item').classList.add('active');
-
-            selectedUser = username;
+    function updateResponsive() {
+        isMobile = window.innerWidth < 768;
+        
+        if (isMobile) {
+            backBtn.classList.remove('hidden');
+            mobileUsersBtn.classList.remove('hidden');
             
-            // Update chat header
-            document.getElementById('chatHeader').style.display = 'flex';
-            document.getElementById('chatHeaderAvatar').textContent = username.charAt(0).toUpperCase();
-            document.getElementById('selectedUserName').textContent = username;
-            document.getElementById('messageInputContainer').style.display = 'flex';
-
-            // Load chat history
-            await loadChatHistory(username);
-            
-            // Setup WebSocket
-            setupWebSocket();
-        }
-
-        // Load chat history
-        async function loadChatHistory(otherUser) {
-            try {
-                const response = await fetch(`/history?user1=${currentUser}&user2=${otherUser}`, {
-                    headers: {
-                        'Authorization': `Bearer ${jwtToken}`
-                    }
-                });
-
-                if (response.ok) {
-                    const messages = await response.json();
-                    const messagesContainer = document.getElementById('messagesContainer');
-                    messagesContainer.innerHTML = '';
-
-                    messages.forEach(msg => {
-                        displayMessage(msg.sender, msg.content, msg.timestamp, msg.sender === currentUser);
-                    });
-
-                    // Scroll to bottom
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }
-            } catch (err) {
-                console.error('Failed to load chat history:', err);
+            if (selectedUser) {
+                sidebar.classList.add('hidden');
+                chatArea.classList.remove('hidden');
+            } else {
+                sidebar.classList.remove('hidden');
+                chatArea.classList.add('hidden');
             }
+        } else {
+            backBtn.classList.add('hidden');
+            mobileUsersBtn.classList.add('hidden');
+            sidebar.classList.remove('hidden');
+            chatArea.classList.remove('hidden');
         }
+    }
 
-        // Setup WebSocket
-        function setupWebSocket() {
-            if (websocket) {
-                websocket.close();
-            }
-
-            websocket = new WebSocket(`ws://localhost:8080/ws?token=${jwtToken}`);
-            
-            websocket.onopen = function(event) {
-                console.log('WebSocket connected');
-            };
-
-            websocket.onmessage = function(event) {
-                const message = JSON.parse(event.data);
-                
-                // Only display message if it's from the currently selected user or sent by current user to selected user
-                if ((message.sender === selectedUser && message.receiver === currentUser) ||
-                    (message.sender === currentUser && message.receiver === selectedUser)) {
-                    displayMessage(message.sender, message.content, message.timestamp, message.sender === currentUser);
-                    
-                    // Scroll to bottom
-                    const messagesContainer = document.getElementById('messagesContainer');
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }
-            };
-
-            websocket.onclose = function(event) {
-                console.log('WebSocket disconnected');
-            };
-
-            websocket.onerror = function(error) {
-                console.error('WebSocket error:', error);
-            };
-        }
-
-        // Display message
-        function displayMessage(sender, content, timestamp, isSent) {
-            const messagesContainer = document.getElementById('messagesContainer');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
-            
-            const time = new Date(timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
-            messageDiv.innerHTML = `
-                <div>${content}</div>
-                <div class="message-time">${time}</div>
-            `;
-            
-            messagesContainer.appendChild(messageDiv);
-        }
-
-        // Send message
-        function sendMessage() {
-            const messageInput = document.getElementById('messageInput');
-            const content = messageInput.value.trim();
-
-            if (!content || !selectedUser) return;
-
-            const message = {
-                receiver: selectedUser,
-                content: content
-            };
-
-            if (websocket && websocket.readyState === WebSocket.OPEN) {
-                websocket.send(JSON.stringify(message));
-                messageInput.value = '';
-            }
-        }
-
-        // Logout function
-        function logout() {
-            // Close WebSocket connection
-            if (websocket) {
-                websocket.close();
-                websocket = null;
-            }
-
-            // Clear all stored data
-            jwtToken = '';
-            currentUser = '';
-            selectedUser = '';
-
-            // Reset UI
-            document.getElementById('loginContainer').style.display = 'flex';
-            document.getElementById('chatContainer').style.display = 'none';
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('errorMessage').textContent = '';
-            
-            // Reset chat interface
-            document.getElementById('chatHeader').style.display = 'none';
-            document.getElementById('messageInputContainer').style.display = 'none';
-            document.getElementById('messagesContainer').innerHTML = '<div class="no-chat-selected">Select a user to start chatting</div>';
-            document.getElementById('usersList').innerHTML = '';
-            
-            // Remove active classes
-            document.querySelectorAll('.user-item').forEach(item => {
-                item.classList.remove('active');
-            });
-        }
-
-        // Enter key to send message
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('messageInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                }
-            });
-
-            // Enter key for login
-            document.getElementById('password').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    login();
-                }
-            });
+    // API functions
+    async function apiCall(endpoint, options = {}) {
+        const baseUrl = "http://localhost:8080"; // backend port
+        const response = await fetch(`${baseUrl}${endpoint}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` })
+            },
+            ...options
         });
-    </script>
+        
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || 'Network error');
+        }
+        
+        return response.json();
+    }
+
+    async function handleAuth() {
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        if (!username || !password) {
+            showError('Please fill in all fields');
+            return;
+        }
+
+        setLoading(true);
+        hideError();
+
+        try {
+            const endpoint = isRegistering ? '/register' : '/login';
+            const data = await apiCall(endpoint, {
+                method: 'POST',
+                body: JSON.stringify({ username, password })
+            });
+
+            if (data.token) {
+                token = data.token;
+                currentUser = username;
+                currentUsername.textContent = username;
+                
+                localStorage.setItem('chatToken', token);
+                localStorage.setItem('chatUser', username);
+                
+                authScreen.classList.add('hidden');
+                chatScreen.classList.remove('hidden');
+                
+                await fetchUsers();
+                setupWebSocket();
+                updateResponsive();
+            }
+        } catch (err) {
+            showError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function fetchUsers() {
+    try {
+        const data = await apiCall('/users');
+        // if backend returns array directly, use data
+        users = (Array.isArray(data) ? data : data.users || []).filter(user => user !== currentUser);
+        renderUsers();
+    } catch (err) {
+        console.error('Failed to fetch users:', err);
+    }
+}
+
+    async function fetchHistory(user1, user2) {
+        try {
+            const data = await apiCall(`/history?user1=${user1}&user2=${user2}`);
+            messages = data || [];
+            renderMessages();
+        } catch (err) {
+            console.error('Failed to fetch history:', err);
+            messages = [];
+            renderMessages();
+        }
+    }
+
+    async function deleteHistory() {
+        if (!selectedUser || !confirm('Delete all chat history with this user?')) return;
+
+        try {
+            await apiCall(`/deleteHistory?user1=${currentUser}&user2=${selectedUser}`, {
+                method: 'DELETE'
+            });
+            messages = [];
+            renderMessages();
+        } catch (err) {
+            alert('Failed to delete history');
+        }
+    }
+
+    function setupWebSocket() {
+        const wsUrl = `ws://localhost:8080/ws?token=${token}`;
+        ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+            console.log('WebSocket connected');
+        };
+
+        ws.onmessage = (event) => {
+            try {
+                const message = JSON.parse(event.data);
+                messages.push(message);
+                renderMessages();
+            } catch (err) {
+                console.error('Failed to parse message:', err);
+            }
+        };
+
+        ws.onclose = () => {
+            console.log('WebSocket disconnected');
+            ws = null;
+        };
+
+        ws.onerror = (err) => {
+            console.error('WebSocket error:', err);
+        };
+    }
+
+    function sendMessage() {
+        const messageText = messageInput.value.trim();
+        if (!messageText || !selectedUser || !ws) return;
+
+        const message = {
+            to: selectedUser,
+            content: messageText
+        };
+
+        ws.send(JSON.stringify(message));
+
+        // Show own message instantly
+        messages.push({
+            sender: currentUser,
+            receiver: selectedUser,
+            content: messageText,
+            created_at: new Date().toISOString()
+        });
+
+        renderMessages();
+        messageInput.value = '';
+    }
+
+    // Render functions
+    function renderUsers() {
+        userCount.textContent = users.length;
+        
+        if (users.length === 0) {
+            noUsersMsg.style.display = 'block';
+            usersList.innerHTML = '<div class="p-4 text-center text-gray-500">No other users online</div>';
+            return;
+        }
+
+        usersList.innerHTML = users.map(user => `
+            <div class="user-item p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-all duration-200 ${selectedUser === user ? 'bg-blue-50 border-blue-200' : ''}" 
+                 onclick="selectUser('${user}')">
+                <div class="flex items-center space-x-3 animate-slide-in">
+                    <div class="${selectedUser === user ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'} w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200">
+                        ${user.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-800">${user}</h3>
+                        <p class="text-sm text-green-500 flex items-center">
+                            <span class="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                            Online
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderMessages() {
+    if (messages.length === 0) {
+        noMessagesMsg.style.display = 'block';
+        messagesContainer.innerHTML = '<div class="text-center text-gray-500 mt-8">No messages yet. Start a conversation!</div>';
+        return;
+    }
+
+    messagesContainer.innerHTML = messages.map(msg => {
+        const isOwnMessage = msg.sender === currentUser;
+        return `
+            <div class="flex ${isOwnMessage ? 'justify-end' : 'justify-start'} message-bubble">
+                <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-2xl shadow-sm ${
+                    isOwnMessage
+                        ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-br-sm'
+                        : 'bg-white text-gray-800 rounded-bl-sm border border-gray-100'
+                }">
+                    <p class="break-words">${linkify(msg.content)}</p>
+                    <p class="text-xs mt-1 ${isOwnMessage ? 'text-blue-100' : 'text-gray-500'}">
+                        ${formatTime(msg.created_at)}
+                    </p>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    setTimeout(scrollToBottom, 100);
+}
+
+
+    async function selectUser(user) {
+        selectedUser = user;
+        selectedUserName.textContent = user;
+        
+        welcomeScreen.classList.add('hidden');
+        chatWindow.classList.remove('hidden');
+        
+        await fetchHistory(currentUser, user);
+        renderUsers();
+        
+        if (isMobile) {
+            updateResponsive();
+        }
+    }
+
+    function linkify(text) {
+    const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+)/g;
+    return text.replace(urlRegex, function(url) {
+        let hyperlink = url;
+        if (!hyperlink.startsWith('http')) {
+            hyperlink = 'http://' + hyperlink;
+        }
+        return `<a href="${hyperlink}" target="_blank" class="text-blue-500 underline">${url}</a>`;
+    });
+}
+
+
+    function logout() {
+        localStorage.removeItem('chatToken');
+        localStorage.removeItem('chatUser');
+        if (ws) ws.close();
+        
+        currentUser = '';
+        token = '';
+        selectedUser = '';
+        ws = null;
+        users = [];
+        messages = [];
+        
+        chatScreen.classList.add('hidden');
+        authScreen.classList.remove('hidden');
+        welcomeScreen.classList.remove('hidden');
+        chatWindow.classList.add('hidden');
+        usernameInput.value = '';
+        passwordInput.value = '';
+        hideError();
+    }
+
+    function toggleAuthMode() {
+        isRegistering = !isRegistering;
+        hideError();
+        
+        if (isRegistering) {
+            authTitle.textContent = 'Create Account';
+            authSubtitle.textContent = 'Sign up to start chatting';
+            authBtnText.textContent = 'Sign Up';
+            toggleAuth.textContent = 'Already have an account? Sign in';
+        } else {
+            authTitle.textContent = 'Welcome Back';
+            authSubtitle.textContent = 'Sign in to your account';
+            authBtnText.textContent = 'Sign In';
+            toggleAuth.textContent = "Don't have an account? Sign up";
+        }
+    }
+
+    function showSidebar() {
+        if (isMobile) {
+            sidebar.classList.remove('hidden');
+            chatArea.classList.add('hidden');
+        }
+    }
+
+    // Event listeners
+    authBtn.addEventListener('click', handleAuth);
+    toggleAuth.addEventListener('click', toggleAuthMode);
+    logoutBtn.addEventListener('click', logout);
+    deleteHistoryBtn.addEventListener('click', deleteHistory);
+    sendBtn.addEventListener('click', sendMessage);
+    backBtn.addEventListener('click', showSidebar);
+    mobileUsersBtn.addEventListener('click', showSidebar);
+
+    usernameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAuth(); });
+    passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAuth(); });
+    messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+
+    window.addEventListener('resize', updateResponsive);
+
+    // Check for existing token on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedToken = localStorage.getItem('chatToken');
+        const savedUser = localStorage.getItem('chatUser');
+        
+        if (savedToken && savedUser) {
+            token = savedToken;
+            currentUser = savedUser;
+            currentUsername.textContent = savedUser;
+            
+            authScreen.classList.add('hidden');
+            chatScreen.classList.remove('hidden');
+            
+            fetchUsers().then(() => {
+                setupWebSocket();
+                updateResponsive();
+            });
+        }
+    });
+</script>
 </body>
 </html>
